@@ -5,13 +5,28 @@ const path = require("path");
 const config = {
   overrides: [
     {
-      extends: [
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
       ],
-      files: ["*.ts", "*.tsx"],
-      parserOptions: {
-        project: path.join(__dirname, "tsconfig.json"),
+      "files": ["*.ts", "*.tsx"],
+      "parserOptions": {
+        "project": "tsconfig.json"
       },
+      "rules": {
+        "@typescript-eslint/consistent-type-imports": "warn",
+        // "@typescript-eslint/no-unsafe-assignment": "warn",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+
+      // extends: [
+      //   "plugin:@typescript-eslint/recommended-requiring-type-checking",
+      // ],
+      // files: ["*.ts", "*.tsx"],
+      // parserOptions: {
+      //   project: path.join(__dirname, "tsconfig.json"),
+      // },
     },
   ],
   parser: "@typescript-eslint/parser",

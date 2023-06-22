@@ -6,8 +6,11 @@ import {
   type DefaultSession,
 } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import TwitterProvider from "next-auth/providers/twitter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+
+import FacebookProvider from "next-auth/providers/facebook";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -22,6 +25,10 @@ declare module "next-auth" {
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
+    token: {
+      refreshToken: string;
+      accessToken: string;
+    };
   }
 
   // interface User {
@@ -37,20 +44,59 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    async session({ session, token, user }) {
+      const getToken = await prisma.account.findFirst({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      let accessToken: string | null = null;
+      let refreshToken: string | null = null;
+      if (getToken) {
+        accessToken = getToken.access_token!;
+        refreshToken = getToken.refresh_token!;
+      }
+
+      console.log("################ callbacks  #############33");
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+        },
+        token: {
+          refreshToken,
+          accessToken,
+        },
+      };
+    },
+    // session: ({ session, token, user }) => ({
+    //   ...session,
+    //   user: {
+    //     ...session.user,
+    //     id: user.id,
+    //   },
+    // }),
   },
   adapter: PrismaAdapter(prisma),
+
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+    // TwitterProvider({
+    //   clientId: env.TWITTER_CLIENT_ID,
+    //   clientSecret: env.TWITTER_CLIENT_SECRET,
+    //   version: "2.0",
+    // }),
+    FacebookProvider({
+      clientId: env.FACEBOOK_CLIENT_ID,
+      clientSecret: env.FACEBOOK_CLIENT_SECRET,
+      authorization: {
+        params: {
+          scope: ["email", "user_posts"],
+        },
+      },
     }),
+
     /**
      * ...add more providers here.
      *
