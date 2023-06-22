@@ -92,7 +92,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.FACEBOOK_CLIENT_SECRET,
       authorization: {
         params: {
-          scope: ["email", "user_posts"],
+          scope: "email, user_posts",
         },
       },
     }),
