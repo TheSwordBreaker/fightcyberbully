@@ -135,7 +135,7 @@ async function getUserPosts() {
     );
     let result = checktheMesg
       .filter(({ status }) => status === "fulfilled")
-      .map((p) => p.value);
+      .map((p: any) => p?.value);
     console.log(result);
     return result;
 
